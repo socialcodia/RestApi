@@ -44,7 +44,7 @@ To Create An Account, Accept only post request with three parameter
 
 The end point is to Create or Register an accout is `createUser`
 
-<b>Full Demo Url</b> <a href="http://socialcodia.net/HostApi/public/createUser">http://socialcodia.net/HostApi/public/createUser</a>
+<b>Full Demo Url</b> <a href="http://api.socialcodia.ml/createUser">http://api.socialcodia.ml/createUser</a>
 
 
 An email verification will be send to user email address when they registered an account into the system.
@@ -75,9 +75,9 @@ To Send The Email Verification Code again, Accept only post request with only on
 
 User can make the send email verification link code if there email address is not verified yet.
 
-The end point of send email verification code is `sendEmailVerification`
+The end point of send email verification code is `updatePassword`
 
-<b>Full Demo Url</b> <a href="http://socialcodia.net/HostApi/public/updatePassword">http://socialcodia.net/HostApi/public/updatePassword</a>
+<b>Full Demo Url</b> <a href="http://api.socialcodia.ml/updatePassword">http://api.socialcodia.ml/updatePassword</a>
 
 
 ## Login Into Account
@@ -88,7 +88,7 @@ To Login into Account, Accept only post request with two parameter
 
 The end point of login is `login`
 
-<b>Full Demo Url</b> <a href="http://socialcodia.net/HostApi/public/login">http://socialcodia.net/HostApi/public/login</a>
+<b>Full Demo Url</b> <a href="http://api.socialcodia.ml/login">http://api.socialcodia.ml/login</a>
 
 
 ## Update Account Password
@@ -100,7 +100,7 @@ To update or changed the current password, Accept only post request with three p
 
 The end point of update password is `updatePassword`
 
-<b>Full Demo Url</b> <a href="http://socialcodia.net/HostApi/public/updatePassword">http://socialcodia.net/HostApi/public/updatePassword</a>
+<b>Full Demo Url</b> <a href="http://api.socialcodia.ml/updatePassword">http://api.socialcodia.ml/updatePassword</a>
 
 an verification code will be sent to user email address when they successfull updated their password.
 

@@ -11,7 +11,7 @@ define('DB_HOST', 'localhost');     //your database host name
 //Website Information
 define('WEBSITE_DOMAIN', 'http://api.socialcodia.ml');               //your domain name
 define('WEBSITE_EMAIL', 'socialcodia@gmail.com');                    //your email address
-define('WEBSITE_EMAIL_PASSWORD', 'uumair88');                        //your email password
+define('WEBSITE_EMAIL_PASSWORD', 'password');                        //your email password
 define('WEBSITE_EMAIL_FROM', 'Social Codia');                        // your website name here
 define('WEBSITE_NAME', 'Social Codia');                              //your website name here
 define('WEBSITE_OWNER_NAME', 'Umair Farooqui');                      //your name, or anyones name, we will send this name with email verification mail.
