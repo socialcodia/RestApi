@@ -608,7 +608,11 @@ function checkEmptyParameter($requiredParameter,$request,$response)
 
 function prepareForgotPasswordMail($name,$email,$code)
 {
-    $mailSubject = "Forgot Password OTP";
+    $websiteDomain = WEBSITE_DOMAIN;
+    $websiteName = WEBSITE_NAME;
+    $websiteEmail = WEBSITE_EMAIL;
+    $websiteOwnerName = WEBSITE_OWNER_NAME;
+    $mailSubject = "Recover your $websiteName password";
     $mailBody= <<<HERE
     <body style="background-color: #f4f4f4; margin: 0 !important; padding: 0 !important;">
     <!-- HIDDEN PREHEADER TEXT -->

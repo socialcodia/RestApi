@@ -90,6 +90,50 @@ The end point of login is `login`
 
 <b>Full Demo Url</b> <a href="http://api.socialcodia.ml/login">http://api.socialcodia.ml/login</a>
 
+## Forgot Password
+
+To send the Forgot Password request, Accept only post request only one parameter
+* Email
+
+The end point of Forgot Password is `forgotPassword`
+
+An OTP wil be sent to email address.
+
+When you make a post request on the `forgotPassword`, 
+
+This will perform these Validation before sending an OTP to users email address.
+
+* The Email parameter should not be empty.
+* The Email Address is a Valid email address or not.
+* The Email Address is Exist into your database server or not.
+* The Email Address is Verified email address or not.
+
+<p align="center">
+    <img src="https://i.imgur.com/zDJCbnS.png" >
+</p>
+
+<b>Full Demo Url</b> <a href="http://api.socialcodia.ml/forgotPassword">http://api.socialcodia.ml/forgotPassword</a>
+
+## Reset Password
+
+To Reset the password, Accept only post request with three parameter
+* Email
+* OTP
+* Password
+
+The end point of Reset Password is `resetPassword`
+
+When you make a request to Reset the password on `resetPassword`
+
+This will perform some validation before varifying the OTP.
+* The Email `Email`, `OTP` and `Password` should not be empty.
+* The Email Address is a Valid email address or not.
+* The Email Address is Exist into your database server or not.
+* The Email Address is Verified email address or not.
+
+Then they will check the `OTP` is correct or not, if correct then the new password will update into server.
+
+<b>Full Demo Url</b> <a href="http://api.socialcodia.ml/resetPassword">http://api.socialcodia.ml/resetPassword</a>
 
 ## Update Account Password
 
