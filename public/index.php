@@ -266,6 +266,52 @@ $app->post('/createUser', function(Request $request, Response $response)
 
 });
 
+$app->post('/forgotPassword', function(Request $result, Response $response)
+{
+    $result = array();
+    if(!checkEmptyParameter(array('email'),$request,$response))
+    {
+        $db = new DbOperations;
+        $result = $db->forgotPassword($email);
+        if($result['message'] == EMAIL_NOT_VALID)
+        {
+            $errorDetails = array();
+            $errorDetails['error'] = true;
+            $errorDetails['message'] = "Enter Valid Email";
+            $response->write(json_encode($errorDetails));
+            return $response->withHeader('Content-Type','application/json')
+                            ->withStatus(200);
+        }       
+        else if($result['message'] ==USER_NOT_FOUND)
+        {
+            $errorDetails = array();
+            $errorDetails['error'] = true;
+            $errorDetails['message'] = "Email Is Not Registered";
+            $response->write(json_encode($errorDetails));
+            return $response->withHeader('Content-Type','application/json')
+                            ->withStatus(200);
+        }
+        else if($result['message'] ==EMAIL_NOT_VERIFIED)
+        {
+            $errorDetails = array();
+            $errorDetails['error'] = true;
+            $errorDetails['message'] = "Email Is Not Verified";
+            $response->write(json_encode($errorDetails));
+            return $response->withHeader('Content-Type','application/json')
+                            ->withStatus(200);
+        }
+        else
+        {
+            $errorDetails = array();
+            $errorDetails['error'] = true;
+            $errorDetails['message'] = "Oops...! Something Went Wrong.";
+            $response->write(json_encode($errorDetails));
+            return $response->withHeader('Content-Type','application/json')
+                            ->withStatus(200);
+        }
+    }
+});
+
 $app->post('/sendEmailVerfication',function(Request $request, Response $response)
 {
     $result = array(); 

@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////// CHANGED INFORMATION /////////////////////////////////////////////////////
 
 //Database Connection
-define('DB_NAME', 'socialcodia');         //your database username
+define('DB_NAME', 'socialcodia');   //your database username
 define('DB_USER', 'root');          //your database name
 define('DB_PASS', '');              //your database password
 define('DB_HOST', 'localhost');     //your database host name

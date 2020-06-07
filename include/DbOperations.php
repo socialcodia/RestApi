@@ -120,6 +120,27 @@ class DbOperations
         return $result;
     }
 
+    function forgotPassword($email)
+    {
+        $result = array();
+        if($this->isEmailValid($email))
+        {
+            if($this->isEmailExist($email))
+            {
+                if($this->isEmailVerified($email))
+                {
+
+                }
+                $result['message'] = EMAIL_NOT_VERIFIED;
+                return $result;
+            }
+            $result['message'] = USER_NOT_FOUND;
+            return $result;
+        }
+        $result['message'] = EMAIL_NOT_VALID;
+        return $result;
+    }
+
     function sendEmailVerificationAgain($email)
     {
         $result = array();

@@ -34,20 +34,78 @@ define('WEBSITE_NAME', 'Social Codia');                              //your webs
 define('WEBSITE_OWNER_NAME', 'Umair Farooqui');                      //your name, we will send this name with email verification mail.
 
 ```
-<p align="center">
-    <img src="https://i.imgur.com/AGeCYFR.png" >
-</p>
 
+## Register An Account
 
 To Create An Account, Accept only post request with three parameter
 * Name
 * Email
 * Password
-An email verification will be send to user email address when they registered an account into thte system.
 
+The end point is to Create or Register an accout is `createUser`
+
+<b>Full Demo Url</b> <a href="http://socialcodia.net/HostApi/public/createUser">http://socialcodia.net/HostApi/public/createUser</a>
+
+
+An email verification will be send to user email address when they registered an account into the system.
+
+In verification email the verification link will be like this.
+
+```bash
+
+    http://api.socialcodia.ml/verifyEmail/wdpWwmufazmit4Py2aYd7MsocialcodiavknYY3bKxS7okyO9NgpYTmufazmiTGsocialcodiaE=/$2y$10$GWEv1cnJo2YdGbmo4mrwA.LNsocialcodiai4sj8.EdxIZuyWX3fjRHEiBrBX2S
+
+```
+* Domain Name : (` http://api.socialcodia.ml/ `)
+* End Point (` verifyEmail `)
+* Encypted User Email (` wdpWwmufazmit4Py2aYd7MsocialcodiavknYY3bKxS7okyO9NgpYTmufazmiTGsocialcodiaE= `)
+* Encypted Code ( `$2y$10$GWEv1cnJo2YdGbmo4mrwA.LNsocialcodiai4sj8.EdxIZuyWX3fjRHEiBrBX2S` )
+
+<p align="center">
+    <img src="https://i.imgur.com/AGeCYFR.png" >
+</p>
+
+<b>Full Demo Url</b> <a href="http://api.socialcodia.ml/verifyEmail/wdpWwmufazmit4Py2aYd7MsocialcodiavknYY3bKxS7okyO9NgpYTmufazmiTGsocialcodiaE=/$2y$10$GWEv1cnJo2YdGbmo4mrwA.LNsocialcodiai4sj8.EdxIZuyWX3fjRHEiBrBX2S">http://api.socialcodia.ml/verifyEmail/wdpWwmufazmit4Py2aYd7MsocialcodiavknYY3bKxS7okyO9NgpYTmufazmiTGsocialcodiaE=/$2y$10$GWEv1cnJo2YdGbmo4mrwA.LNsocialcodiai4sj8.EdxIZuyWX3fjRHEiBrBX2S</a>
+
+
+## Send Email Verification Code Again
+
+To Send The Email Verification Code again, Accept only post request with only one parameter
+* Email
+
+User can make the send email verification link code if there email address is not verified yet.
+
+The end point of send email verification code is `sendEmailVerification`
+
+<b>Full Demo Url</b> <a href="http://socialcodia.net/HostApi/public/updatePassword">http://socialcodia.net/HostApi/public/updatePassword</a>
+
+
+## Login Into Account
 
 To Login into Account, Accept only post request with two parameter
 * Email
 * Password
+
+The end point of login is `login`
+
+<b>Full Demo Url</b> <a href="http://socialcodia.net/HostApi/public/login">http://socialcodia.net/HostApi/public/login</a>
+
+
+## Update Account Password
+
+To update or changed the current password, Accept only post request with three parameter
+* Email
+* Password
+* newPassword
+
+The end point of update password is `updatePassword`
+
+<b>Full Demo Url</b> <a href="http://socialcodia.net/HostApi/public/updatePassword">http://socialcodia.net/HostApi/public/updatePassword</a>
+
+an verification code will be sent to user email address when they successfull updated their password.
+
+### At the end
+
+you don't need to worry about that things, you need to change the code in `Constants.php` Php
 
 That's it! Now go build something cool.
