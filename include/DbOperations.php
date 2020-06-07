@@ -129,7 +129,60 @@ class DbOperations
             {
                 if($this->isEmailVerified($email))
                 {
+                    $code = rand(100000,999999);
+                    $name = $this->getNameByEmail($email);
+                    if($this->updateCode($email,$code))
+                    {
+                        $result['message'] = CODE_UPDATED;
+                        $result['code'] = $code;
+                        $result['name'] = $name;
+                        $result['email'] = $email;
+                        return $result;
+                    }
+                    $result['message'] = CODE_UPDATE_FAILED;
+                    return $result;
+                }
+                $result['message'] = EMAIL_NOT_VERIFIED;
+                return $result;
+            }
+            $result['message'] = USER_NOT_FOUND;
+            return $result;
+        }
+        $result['message'] = EMAIL_NOT_VALID;
+        return $result;
+    }
 
+    function resetPassword($email,$code,$newPassword)
+    {
+        $result = array();
+        if($this->isEmailValid($email))
+        {
+            if($this->isEmailExist($email))
+            {
+                if($this->isEmailVerified($email))
+                {
+                    $hashCode = $this->getCodeByEmail($email);
+                    if(password_verify($code,$hashCode))
+                    {
+                        $hashPass = password_hash($newPassword,PASSWORD_DEFAULT);
+                        $query = "UPDATE users SET password=? WHERE email=?";
+                        $stmt = $this->con->prepare($query);
+                        $stmt->bind_param('ss',$hashPass,$email);
+                        if($stmt->execute())
+                        {
+                            $randCode = password_hash(rand(100000,999999),PASSWORD_DEFAULT);
+                            $this->updateCode($email,$randCode);
+                            $name = $this->getNameByEmail($email);
+                            $result['message'] = PASSWORD_RESET;
+                            $result['name'] = $name;
+                            $result['email'] = $email;
+                            return $result;
+                        }
+                        $result['message'] = PASSWORD_RESET_FAILED;
+                        return $result;
+                    } 
+                    $result['message'] = CODE_WRONG;
+                    return $result;
                 }
                 $result['message'] = EMAIL_NOT_VERIFIED;
                 return $result;
@@ -166,6 +219,19 @@ class DbOperations
         }
         $result['message'] = EMAIL_NOT_VALID;
         return $result;
+    }
+
+    function updateCode($email,$code)
+    {
+        $hashCode = password_hash($code,PASSWORD_DEFAULT);
+        $query = "UPDATE users SET code=? WHERE email=?";
+        $stmt = $this->con->prepare($query);
+        $stmt->bind_param('ss',$hashCode,$email);
+        if($stmt->execute())
+        {
+            return true;
+        }      
+        return false;
     }
 
     function verfiyEmail($email,$code)

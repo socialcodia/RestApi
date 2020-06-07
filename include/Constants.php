@@ -45,11 +45,19 @@ define('PASSWORD_CHANGE_FAILED', 207);
 define('PASSWORD_WRONG', 208);
 define('PASSWORD_SAME', 209);
 
-
-
-
-
 define('INVAILID_USER', 301);
+define('CODE_UPDATED', 302);
+// define('CODE_WRONG', 303);
+define('CODE_UPDATE_FAILED', 304);
+define('CODE_WRONG', 305);
+
+define('PASSWORD_RESET', 306);
+define('PASSWORD_RESET_FAILED', 307);
+
+
+
+
+
 
 ///////////////////////////////////////////////////// END DON'T TOUCH THIS /////////////////////////////////////////////////////
 
