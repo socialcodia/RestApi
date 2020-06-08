@@ -606,12 +606,14 @@ function checkEmptyParameter($requiredParameter,$request,$response)
     return $error;
 }
 
+
 function prepareForgotPasswordMail($name,$email,$code)
 {
     $websiteDomain = WEBSITE_DOMAIN;
     $websiteName = WEBSITE_NAME;
     $websiteEmail = WEBSITE_EMAIL;
     $websiteOwnerName = WEBSITE_OWNER_NAME;
+    $ipAddress = "(".$_SERVER['REMOTE_ADDR'].")";
     $mailSubject = "Recover your $websiteName password";
     $mailBody= <<<HERE
     <body style="background-color: #f4f4f4; margin: 0 !important; padding: 0 !important;">
@@ -663,7 +665,7 @@ function prepareForgotPasswordMail($name,$email,$code)
                     </tr> <!-- COPY -->
                     <tr>
                         <td bgcolor="#ffffff" align="left" style="padding: 0px 30px 0px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
-                            <p style="margin: 0;">If you didn't make this request, you can safely ignore this email :)</p>
+                            <p style="margin: 0;">For security, this request was recieved from ip address $ipAddress. <br> If you didn't make this request, you can safely ignore this email :)</p>
                         </td>
                     </tr> <!-- COPY -->
                     <tr>
