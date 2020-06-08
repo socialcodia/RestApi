@@ -6,10 +6,12 @@
 
 This API is developed using the PHP Slim Framework, In this api you can use thease feature.
 
-* Create an account (An email verification will be sent to user email address when they rgistered an account)
-* Login into account (User can login into their account when they will successfully verified their account)
-* Send Email Verification Code (You can add a feature that user can send email verifcation code again to their email address)
-* Update Password (User can update password, An email will also be send when they succesfully changed their password)
+* **Create an account** ( *An email verification will be sent to user email address when they rgistered an account* )
+* **Login into account** ( *User can login into their account when they will successfully verified their account* )
+* **Send Email Verification Code** (*You can add a feature that user can send email verifcation code again to their email address* )
+* **Update Password** ( *User can update password, An email will also be send when they succesfully changed their password* )
+* **Forgot Password** ( *User can make a request that they have forgot their password, An OTP will be send to user's email address* )
+* **Reset Password** ( *User can reset password, by using the OTP which they have recieved, An email will also be send when they succesfully changed their password* )
 
 
 ## Feauter Explanation
@@ -46,7 +48,7 @@ To Create An Account, Accept only post request with three parameter
 * Email
 * Password
 
-The end point is to Create or Register an accout is `createUser`
+The end point is to Create or Register an account is `createUser`
 
 <b>Demo Url</b> 
 * Api Url <a href="http://api.socialcodia.ml/createUser">http://api.socialcodia.ml/createUser</a>
@@ -145,6 +147,7 @@ Then they will check the `OTP` is correct or not, if correct then the new passwo
 <b>Demo Url</b> 
 * Api Url <a href="http://api.socialcodia.ml/resetPassword">http://api.socialcodia.ml/resetPassword</a>
 
+
 ## Update Account Password
 
 To update or changed the current password, Accept only post request with three parameter
@@ -160,9 +163,18 @@ The end point of update password is `updatePassword`
 
 an verification code will be sent to user email address when they successfull updated their password.
 
+When any user reset there password or changed there password, a confirmation email will be deliver to their registered email address that the password has been changed,
+
+For security reason, The email will be deliver with three parameter **Time** and **Date** and **Ip Address** .
+
+<p align="center">
+    <img src="https://i.imgur.com/dwo4Ol8.png" >
+</p>
+
+
 ### At the end
 
-you don't need to worry about that things, you need to change the code in `Constants.php` Php
+you don't need to worry about that things, you only need to change the code of `Constants.php` File.
 
 * You can check out the UI which is mainely developed for this project, @SocialCodia/RestUi
 

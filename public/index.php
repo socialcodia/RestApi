@@ -606,7 +606,6 @@ function checkEmptyParameter($requiredParameter,$request,$response)
     return $error;
 }
 
-
 function prepareForgotPasswordMail($name,$email,$code)
 {
     $websiteDomain = WEBSITE_DOMAIN;
@@ -815,7 +814,7 @@ function preparePasswordChangedMail($name,$email)
     $websiteOwnerName = WEBSITE_OWNER_NAME;
     $ipAddress = "(".$_SERVER['REMOTE_ADDR'].")";
     $currentDate = date('d');
-    $currentMonth =  DateTime::createFromFormat('!m',date('d'));
+    $currentMonth =  DateTime::createFromFormat('!m',date('m'));
     $currentMonth = $currentMonth->format('F');
     $currentYear = date('yy');
     $currentTime = date('h:m a');
