@@ -813,11 +813,12 @@ function preparePasswordChangedMail($name,$email)
     $websiteEmail = WEBSITE_EMAIL;
     $websiteOwnerName = WEBSITE_OWNER_NAME;
     $ipAddress = "(".$_SERVER['REMOTE_ADDR'].")";
+    date_default_timezone_set('Asia/Kolkata');
     $currentDate = date('d');
     $currentMonth =  DateTime::createFromFormat('!m',date('m'));
     $currentMonth = $currentMonth->format('F');
     $currentYear = date('yy');
-    $currentTime = date('h:m a');
+    $currentTime = date('h:i a');
     $mailSubject = "Your password has been changed.";
     $mailBody = <<<HERE
     <body style="background-color: #f4f4f4; margin: 0 !important; padding: 0 !important;">
