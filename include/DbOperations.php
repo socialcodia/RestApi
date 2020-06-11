@@ -80,6 +80,34 @@ class DbOperations
         return $result;
     }
 
+    function uploadProfileImage($email,$image)
+    {
+        $result = array();
+        if($image['name']!=null)
+        {
+            $targetDir = "../uploads/";
+            // $targetFile = $targetDir.uniqid().'.'.pathinfo($image['name'],PATHINFO_EXTENSION);
+            $targetFile = $targetDir.uniqid().'.'.pathinfo($image['name'], PATHINFO_EXTENSION);
+            if(move_uploaded_file($image['tmp_name'],$targetFile))
+            {
+                $query = "UPDATE users set profile_image=? WHERE email=? ";
+                $stmt = $this->con->prepare($query);
+                $stmt->bind_param('ss',$targetFile,$email);
+                if($stmt->execute())
+                {
+                    $result['message'] = IMAGE_UPLOADED;
+                    return $result;
+                }
+                $result['message'] = IMAGE_UPLOADE_FAILED;
+                return $result;
+            }
+            $result['message'] = IMAGE_UPLOADE_FAILED;
+            return $result;
+        }
+        $result['message'] = IMAGE_NOT_SELECTED;
+        return $result;
+    }
+
     function updatePassword($email,$password, $newPassword)
     {
         $result = array();

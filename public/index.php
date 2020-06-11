@@ -40,23 +40,11 @@ $app->post('/createUser', function(Request $request, Response $response)
 
         if($result['message'] == USER_CREATION_FAILED)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Failed to create an account";
-            $response->write(json_encode($errorDetails));
-    
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Failed to create an account",$response);
         }
         else if($result['message'] == EMAIL_EXIST)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Email already registered";
-            $response->write(json_encode($errorDetails));
-    
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Email already registered",$response);
         }
         else if($result['message'] == USER_CREATED)
         {
@@ -64,43 +52,20 @@ $app->post('/createUser', function(Request $request, Response $response)
             $name = $result['name'];
             if(prepareVerificationMail($name,$email,$code))
             {
-                $errorDetails = array();
-                $errorDetails['error'] = false;
-                $errorDetails['message'] = "An Email Verification Link Has Been Sent Your Email Address: ".$email;
-                $response->write(json_encode($errorDetails));
-                return $response->withHeader('Content-Type','application/json')
-                                ->withStatus(200);
+               returnResponse(false,"An Email Verification Link Has Been Sent Your Email Address: ".$email,$response);
             }
             else
             {
-                $errorDetails = array();
-                $errorDetails['error'] = true;
-                $errorDetails['message'] = 'Failed To Send Verification Email';
-                $response->write(json_encode($errorDetails));
-        
-                return $response->withHeader('Content-Type','application/json')
-                                ->withStatus(200);
+               returnResponse(true,"Failed To Send Verification Email",$response);
             }
         }
         else if($result['message'] == VERIFICATION_EMAIL_SENT_FAILED)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = 'Failed To Send Verification Email';
-            $response->write(json_encode($errorDetails));
-    
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Failed To Send Verification Email",$response);
         }
         else if($result['message'] == EMAIL_NOT_VALID)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Enter Valid Email";
-            $response->write(json_encode($errorDetails));
-    
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Enter Valid Email",$response);
         }
     }
 
@@ -132,53 +97,23 @@ $app->post('/login', function(Request $request, Response $response)
         
         else if($result['message'] ==USER_NOT_FOUND)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Email Is Not Registered";
-            $response->write(json_encode($errorDetails));
-    
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Email Is Not Registered",$response);
         }
         else if($result['message'] ==PASSWORD_WRONG)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Wrong Password";
-            $response->write(json_encode($errorDetails));
-    
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Wrong Password",$response);
         }
         else if($result['message'] ==UNVERIFIED_EMAIL)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Email Is Not Verified";
-            $response->write(json_encode($errorDetails));
-    
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Email Is Not Verified",$response);
         }
         else if($result['message'] == EMAIL_NOT_VALID)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Enter Valid Email";
-            $response->write(json_encode($errorDetails));
-    
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Enter Valid Email",$response);
         }
         else
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Something Went Wrong";
-            $response->write(json_encode($errorDetails));
-    
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Something Went Wrong",$response);
         }
     }
 });
@@ -194,13 +129,7 @@ $app->post('/sendEmailVerfication',function(Request $request, Response $response
         $result = $db->sendEmailVerificationAgain($email);
         if($result['message'] == VERIFICATION_EMAIL_SENT)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = false;
-            $errorDetails['message'] = "Email Has Been Sent";
-            $response->write(json_encode($errorDetails));
-    
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(201);
+            returnResponse(false,"Email Has Been Sent",$response);
         }
         else if($result['message'] ==SEND_CODE)
         {
@@ -210,57 +139,32 @@ $app->post('/sendEmailVerfication',function(Request $request, Response $response
             $process = prepareVerificationMail($name,$email,$code);
             if($process)
             {
-                $errorDetails = array();
-                $errorDetails['error'] = false;
-                $errorDetails['message'] = "An Email Verification Link Has Been Sent Your Email Address: ".$email;
-                $response->write(json_encode($errorDetails));        
-                return $response->withHeader('Content-Type','application/json')
-                                ->withStatus(200);
+                // $errorDetails = array();
+                // $errorDetails['error'] = false;
+                // $errorDetails['message'] = "An Email Verification Link Has Been Sent Your Email Address: ".$email;
+                // $response->write(json_encode($errorDetails));        
+                // return $response->withHeader('Content-Type','application/json')
+                //                 ->withStatus(200);
+            returnResponse(false,"An Email Verification Link Has Been Sent Your Email Address: ".$email,$response);
+
             }
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Failed To Sent Verification Email";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Failed To Sent Verification Email",$response);
         }
         else if($result['message'] ==USER_NOT_FOUND)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "No Account Registered With This Email";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"No Account Registered With This Email",$response);
         }
         else if($result['message'] == EMAIL_NOT_VALID)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Enter Valid Email";
-            $response->write(json_encode($errorDetails));
-    
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Enter Valid Email",$response);
         }
         else if($result['message'] ==EMAIL_ALREADY_VERIFIED)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Your Email Address Already Verified";
-            $response->write(json_encode($errorDetails));
-    
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Your Email Address Already Verified",$response);
         }
         else
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Something Went Wrong";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Something Went Wrong",$response);
         }
     }
 });
@@ -276,63 +180,27 @@ $app->get('/verifyEmail/{email}/{code}',function(Request  $request, Response $re
 
     if($result['message'] == EMAIL_VERIFIED)
     {
-        $errorDetails = array();
-        $errorDetails['error'] = false;
-        $errorDetails['message'] = "Email Has Been Verified";
-        $response->write(json_encode($errorDetails));
-
-        return $response->withHeader('Content-Type','application/json')
-                        ->withStatus(201);
+        returnResponse(false,"Email Has Been Verified",$response);
     }
     else if($result['message'] ==EMAIL_NOT_VERIFIED)
     {
-        $errorDetails = array();
-        $errorDetails['error'] = true;
-        $errorDetails['message'] = "Failed To Verify Email";
-        $response->write(json_encode($errorDetails));
-
-        return $response->withHeader('Content-Type','application/json')
-                        ->withStatus(200);
+        returnResponse(true,"Failed To Verify Email",$response);
     }
     else if($result['message'] ==INVAILID_USER)
     {
-        $errorDetails = array();
-        $errorDetails['error'] = true;
-        $errorDetails['message'] = "INVALID USER";
-        $response->write(json_encode($errorDetails));
-
-        return $response->withHeader('Content-Type','application/json')
-                        ->withStatus(200);
+        returnResponse(true,"INVALID USER",$response);
     }
     else if($result['message'] ==INVALID_VERFICATION_CODE)
     {
-        $errorDetails = array();
-        $errorDetails['error'] = true;
-        $errorDetails['message'] = "INVALID VERIFCATION CODE";
-        $response->write(json_encode($errorDetails));
-
-        return $response->withHeader('Content-Type','application/json')
-                        ->withStatus(200);
+        returnResponse(true,"INVALID VERIFCATION CODE",$response);
     }
     else if($result['message'] ==EMAIL_ALREADY_VERIFIED)
     {
-        $errorDetails = array();
-        $errorDetails['error'] = true;
-        $errorDetails['message'] = "Your Email Is Already Verified";
-        $response->write(json_encode($errorDetails));
-
-        return $response->withHeader('Content-Type','application/json')
-                        ->withStatus(200);
+        returnResponse(true,"Your Email Is Already Verified",$response);
     }
     else
     {
-        $errorDetails = array();
-        $errorDetails['error'] = true;
-        $errorDetails['message'] = "Something Went Wrong";
-        $response->write(json_encode($errorDetails));
-
-        return $response->withHeader('Content-Type','application/json')
-                        ->withStatus(200);
+        returnResponse(true,"Something Went Wrong",$response);
     }
 
 });
@@ -353,64 +221,29 @@ $app->post('/forgotPassword', function(Request $request, Response $response)
             $code = $result['code'];
             if(prepareForgotPasswordMail($name,$email,$code))
             {
-                $errorDetails = array();
-                $errorDetails['error'] = false;
-                $errorDetails['message'] = "OTP has been sent to your email address";
-                $response->write(json_encode($errorDetails));
-                return $response->withHeader('Content-Type','application/json')
-                                ->withStatus(200);
+                returnResponse(false,"OTP has been sent to your email address",$response);
             }
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Failed To Send OTP Email";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Failed To Send OTP Email",$response);
         }
         else if($result['message'] == EMAIL_NOT_VALID)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Enter Valid Email";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Enter Valid Email",$response);
         }       
         else if($result['message'] ==USER_NOT_FOUND)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Email Is Not Registered";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Email Is Not Registered",$response);
         }
         else if($result['message'] ==EMAIL_NOT_VERIFIED)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Email Is Not Verified";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Email Is Not Verified",$response);
         }
         else if($result['message'] ==CODE_UPDATE_FAILED)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Oops...! Some Error Occurred During Updating Code Into Database";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Oops...! Some Error Occurred During Updating Code Into Database",$response);
         }
         else
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Oops...! Something Went Wrong.";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Oops...! Something Went Wrong.",$response);
         }
     }
 });
@@ -432,66 +265,31 @@ $app->post('/resetPassword', function(Request $request, Response $response)
             $name = $result['name'];
             $email = $result['email'];
             preparePasswordChangedMail($name,$email);
-            $errorDetails = array();
-            $errorDetails['error'] = false;
-            $errorDetails['message'] = "Password Has Been Changed";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                                ->withStatus(200);
+            returnResponse(false,"Password Has Been Changed",$response);
         }
         else if($result['message'] == EMAIL_NOT_VALID)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Enter Valid Email";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Enter Valid Email",$response);
         }       
         else if($result['message'] ==USER_NOT_FOUND)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Email Is Not Registered";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Email Is Not Registered",$response);
         }
         else if($result['message'] ==EMAIL_NOT_VERIFIED)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Email Is Not Verified";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Email Is Not Verified",$response);
         }
         else if($result['message'] ==PASSWORD_RESET_FAILED)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Oops...! Some Error Occurred During Reseting Password";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Oops...! Some Error Occurred During Reseting Password",$response);
         }
         else if($result['message'] ==CODE_WRONG)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Invalid Otp";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Invalid Otp",$response);
         }
         else
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Oops...! Something Went Wrong.";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Oops...! Something Went Wrong.",$response);
         }
 
 
@@ -513,70 +311,62 @@ $app->post('/updatePassword',function(Request $request, Response $response)
 
         if($result['message'] == EMAIL_NOT_VALID)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Enter Valid Email";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
-        }        else if($result['message'] ==USER_NOT_FOUND)
+            returnResponse(true,"Enter Valid Email",$response);
+        }        
+        else if($result['message'] ==USER_NOT_FOUND)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Email Is Not Registered";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Email Is Not Registered",$response);
         }
         else if($result['message'] ==EMAIL_NOT_VERIFIED)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Email Is Not Verified";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Email Is Not Verified",$response);
         }
         else if($result['message'] ==PASSWORD_WRONG)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Wrong Password";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Wrong Password",$response);
         }
         else if($result['message']==PASSWORD_CHANGED)
         {
             $name = $result['name'];
             $email = $result['email'];
             preparePasswordChangedMail($name,$email);
-            $errorDetails = array();
-            $errorDetails['error'] = false;
-            $errorDetails['message'] = "Password Has Been Changed";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(false,"Password Has Been Changed",$response);
         }
         else if($result['message'] ==PASSWORD_CHANGE_FAILED)
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Oops..! Something Went Wrong, Password Not Changed";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Oops..! Something Went Wrong, Password Not Changed",$response);
         }
         else
         {
-            $errorDetails = array();
-            $errorDetails['error'] = true;
-            $errorDetails['message'] = "Oops...! Something Went Wrong.";
-            $response->write(json_encode($errorDetails));
-            return $response->withHeader('Content-Type','application/json')
-                            ->withStatus(200);
+            returnResponse(true,"Oops...! Something Went Wrong.",$response);
         }
     }
+});
+
+$app->post('/uploadProfileImage', function(Request $request, Response $response)
+{
+    $result = array();
+    // if(!checkEmptyParameter(array('image','email'),$request,$response))
+    // {
+        $db = new DbOperations;
+        $requestParameter = $request->getParsedBody();
+        $image = $_FILES['image'];
+        $email = $requestParameter['email'];
+        $result = $db->uploadProfileImage($email,$image);
+
+        if($result['message'] == IMAGE_UPLOADED)
+        {
+            returnResponse(false,"Image Uploaded",$response);
+        }        
+        else if($result['message'] ==IMAGE_UPLOADE_FAILED)
+        {
+            returnResponse(true,"Failed To Upload The Image",$response);
+        }
+        else if($result['message'] ==IMAGE_NOT_SELECTED)
+        {
+            returnResponse(true,"Image Not Selected",$response);
+        }
+    // }
 });
 
 function checkEmptyParameter($requiredParameter,$request,$response)
@@ -595,13 +385,7 @@ function checkEmptyParameter($requiredParameter,$request,$response)
     }
     if($error)
     {
-        $errorDetails = array();
-        $errorDetails['error'] = true;
-        $errorDetails['message'] = "Required Parameter ".substr($errorParam,0,-2)." is missing";
-        $response->write(json_encode($errorDetails));
-
-        return $response->withHeader('Content-Type','application/json')
-                        ->withStatus(200);
+        returnResponse(true,"Required Parameter ".substr($errorParam,0,-2)." is missing",$response);
     }
     return $error;
 }
@@ -933,5 +717,14 @@ function decryptEmail($data)
     return $email; 
 }
 
+function returnResponse($error,$message,$response)
+{
+    $errorDetails = array();
+    $errorDetails['error'] = $error;
+    $errorDetails['message'] = $message;
+    $response->write(json_encode($errorDetails));
+    return $response->withHeader('Content-Type','application/json')
+                    ->withStatus(200);
+}
 
 $app->run();

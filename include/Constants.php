@@ -54,6 +54,11 @@ define('CODE_WRONG', 305);
 define('PASSWORD_RESET', 306);
 define('PASSWORD_RESET_FAILED', 307);
 
+define('IMAGE_NOT_SELECTED', 308);
+define('IMAGE_UPLOADED', 309);
+define('IMAGE_UPLOADE_FAILED', 401);
+
+
 
 
 

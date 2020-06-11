@@ -4,7 +4,7 @@
     <img src="https://i.imgur.com/ldslPC7.png" width="120" >
 </p>
 
-This API is developed using the PHP Slim Framework, In this api you can use thease feature.
+This API is developed using the PHP Slim Framework, In this API you can use thease feature.
 
 * **Create an account** ( *An email verification will be sent to user email address when they rgistered an account* )
 * **Login into account** ( *User can login into their account when they will successfully verified their account* )
@@ -51,7 +51,8 @@ To Create An Account, Accept only post request with three parameter
 The end point is to Create or Register an account is `createUser`
 
 <b>Demo Url</b> 
-* Api Url <a href="http://api.socialcodia.ml/createUser">http://api.socialcodia.ml/createUser</a>
+* API Url <a href="http://api.socialcodia.ml/createUser">http://api.socialcodia.ml/createUser</a>
+* GUI Url <a href="http://restui.socialcodia.ml/register">http://restui.socialcodia.ml/register</a>
 
 
 An email verification will be send to user email address when they registered an account into the system.
@@ -73,7 +74,7 @@ In verification email the verification link will be like this.
 </p>
 
 <b>Demo Url</b> 
-* Api Url <a href="http://api.socialcodia.ml/verifyEmail/wdpWwmufazmit4Py2aYd7MsocialcodiavknYY3bKxS7okyO9NgpYTmufazmiTGsocialcodiaE=/$2y$10$GWEv1cnJo2YdGbmo4mrwA.LNsocialcodiai4sj8.EdxIZuyWX3fjRHEiBrBX2S">http://api.socialcodia.ml/verifyEmail/wdpWwmufazmit4Py2aYd7MsocialcodiavknYY3bKxS7okyO9NgpYTmufazmiTGsocialcodiaE=/$2y$10$GWEv1cnJo2YdGbmo4mrwA.LNsocialcodiai4sj8.EdxIZuyWX3fjRHEiBrBX2S</a>
+* API Url <a href="http://api.socialcodia.ml/verifyEmail/wdpWwmufazmit4Py2aYd7MsocialcodiavknYY3bKxS7okyO9NgpYTmufazmiTGsocialcodiaE=/$2y$10$GWEv1cnJo2YdGbmo4mrwA.LNsocialcodiai4sj8.EdxIZuyWX3fjRHEiBrBX2S">http://api.socialcodia.ml/verifyEmail/wdpWwmufazmit4Py2aYd7MsocialcodiavknYY3bKxS7okyO9NgpYTmufazmiTGsocialcodiaE=/$2y$10$GWEv1cnJo2YdGbmo4mrwA.LNsocialcodiai4sj8.EdxIZuyWX3fjRHEiBrBX2S</a>
 
 
 ## Send Email Verification Code Again
@@ -86,7 +87,8 @@ User can make the send email verification link code if there email address is no
 The end point of send email verification code is `updatePassword`
 
 <b>Demo Url</b>
-* Api Url <a href="http://api.socialcodia.ml/updatePassword">http://api.socialcodia.ml/updatePassword</a>
+* API Url <a href="http://api.socialcodia.ml/updatePassword">http://api.socialcodia.ml/updatePassword</a>
+* GUI Url <a href="http://restui.socialcodia.ml/updatePassword">http://restui.socialcodia.ml/updatePassword</a>
 
 
 ## Login Into Account
@@ -98,7 +100,8 @@ To Login into Account, Accept only post request with two parameter
 The end point of login is `login`
 
 <b>Demo Url</b> 
-* Api Url <a href="http://api.socialcodia.ml/login">http://api.socialcodia.ml/login</a>
+* API Url <a href="http://api.socialcodia.ml/login">http://api.socialcodia.ml/login</a>
+* GUI Url <a href="http://restui.socialcodia.ml/login">http://restui.socialcodia.ml/login</a>
 
 ## Forgot Password
 
@@ -123,7 +126,8 @@ This will perform these Validation before sending an OTP to users email address.
 </p>
 
 <b>Demo Url</b> 
-* Api Url <a href="http://api.socialcodia.ml/forgotPassword">http://api.socialcodia.ml/forgotPassword</a>
+* API Url <a href="http://api.socialcodia.ml/forgotPassword">http://api.socialcodia.ml/forgotPassword</a>
+* GUI Url <a href="http://restui.socialcodia.ml/forgotPassword">http://restui.socialcodia.ml/forgotPassword</a>
 
 ## Reset Password
 
@@ -145,7 +149,8 @@ This will perform some validation before varifying the OTP.
 Then they will check the `OTP` is correct or not, if correct then the new password will update into server.
 
 <b>Demo Url</b> 
-* Api Url <a href="http://api.socialcodia.ml/resetPassword">http://api.socialcodia.ml/resetPassword</a>
+* API Url <a href="http://api.socialcodia.ml/resetPassword">http://api.socialcodia.ml/resetPassword</a>
+* GUI Url <a href="http://restui.socialcodia.ml/resetPassword">http://restui.socialcodia.ml/resetPassword</a>
 
 
 ## Update Account Password
@@ -159,7 +164,9 @@ The end point of update password is `updatePassword`
 
 <b>Demo Url</b> 
 
-* Api Url <a href="http://api.socialcodia.ml/updatePassword">http://api.socialcodia.ml/updatePassword</a>
+* API Url <a href="http://api.socialcodia.ml/updatePassword">http://api.socialcodia.ml/updatePassword</a>
+* GUI Url <a href="http://restui.socialcodia.ml/settings">http://restui.socialcodia.ml/settings</a>
+
 
 an verification code will be sent to user email address when they successfull updated their password.
 
@@ -176,8 +183,8 @@ For security reason, The email will be deliver with three parameter **Time** and
 
 you don't need to worry about that things, you only need to change the code of `Constants.php` File.
 
-* You can check out the UI which is mainely developed for this project, @SocialCodia/RestUi
+* You can check out the UI which is mainely developed for this project, <a href="https://github.com/SocialCodia/RestUi">@SocialCodia/RestUi</a>
 
-* Visit on the link to perform Api Action, http://RestUi.SocialCodia.ml
+* Visit on the link to perform API Action, http://RestUi.SocialCodia.ml
 
 That's it! Now go build something cool.
