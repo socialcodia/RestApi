@@ -43,9 +43,9 @@ define('WEBSITE_OWNER_NAME', 'Umair Farooqui');                      //your name
 
 ```bash
 // JWT ( *JSON Web Token* ) Information
-define('JWT_SECRET_TOKEN','SocialCodia');                              //Use a very dificult secret key here, which no one can guest that,
-
+define('JWT_SECRET_TOKEN','SocialCodia');                              //Your JWT secret key here,
 ```
+> **Note :** In `JWT_SECRET_TOKEN`, Please use a very hard and dificult key which no one can guess that key.
 
 ## Register An Account
 
@@ -128,7 +128,7 @@ The return infomration from the database will be like this.
 
 ## Forgot Password
 
-To send the Forgot Password request, Accept only post request only one parameter
+To send the Forgot Password request, Accept only post request with only one parameter
 * Email
 
 The end point of Forgot Password is `forgotPassword`
@@ -178,7 +178,7 @@ Then they will check the `OTP` is correct or not, if correct then the new passwo
 
 ## Update Account Password
 
-To update or changed the current password, Accept post request with  two parameter with header.
+To update or changed the current password, Accept post request with two parameter with header.
 * Password
 * newPassword
 
