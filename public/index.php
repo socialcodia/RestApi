@@ -351,7 +351,20 @@ $app->get('/users', function(Request $request, Response $response)
     {
             $id = $db->getUserId();
             $users = $db->getUsers($id);
-            returnResponse(false,$users,$response);
+            if (!empty($users)) 
+            {
+                $errorDetails = array();
+                $errorDetails['error'] = true;
+                $errorDetails['message'] = "Users List Found";
+                $errorDetails['users'] = $users;
+                $response->write(json_encode($errorDetails));
+                return $response->withHeader('Content-Type','application/json')
+                                ->withStatus(200);
+            }
+            else
+            {
+                returnResponse(false,"No User Found",$response);
+            }
     }
 });
 
