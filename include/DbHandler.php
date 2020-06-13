@@ -291,9 +291,10 @@ class DbHandler
 
     function getUsers($id)
     {
-        $url = "SELECT id,name,email,password FROM users WHERE id !=?";
+        $url = "SELECT id,name,email,password FROM users WHERE id !=? AND status != ?";
         $stmt = $this->con->prepare($url);
-        $stmt->bind_param("s",$id);
+        $status = "0";
+        $stmt->bind_param("ss",$id,$status);
         $stmt->execute();
         $stmt->bind_result($id,$name,$email,$password);
         $users = array();
