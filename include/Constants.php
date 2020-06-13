@@ -16,6 +16,8 @@ define('WEBSITE_EMAIL_FROM', 'Social Codia');                        // your web
 define('WEBSITE_NAME', 'Social Codia');                              //your website name here
 define('WEBSITE_OWNER_NAME', 'Umair Farooqui');                      //your name, or anyones name, we will send this name with email verification mail.
 
+define('JWT_SECRET_KEY', 'SocialCodia');  							//your jwt secret key, Please use a very dificult secret key, which no one can guess it.
+
 ///////////////////////////////////////////////////// END CHANGE INFORMATION /////////////////////////////////////////////////////
 
 
@@ -58,8 +60,10 @@ define('IMAGE_NOT_SELECTED', 308);
 define('IMAGE_UPLOADED', 309);
 define('IMAGE_UPLOADE_FAILED', 401);
 
-
-
+//For JWT 
+define('JWT_TOKEN_ERROR', 402);
+define('JWT_TOKEN_FINE', 403);
+define('JWT_USER_NOT_FOUND', 404);
 
 
 

@@ -10,8 +10,11 @@ use PHPMailer\PHPMailer\Exception;
 //use Slim\Factory\AppFactory;
 
 require '../vendor/autoload.php';
-require_once '../include/DbOperations.php';
+require_once '../include/DbHandler.php';
 require_once '../vendor/autoload.php';
+require_once '../include/JWT.php';
+
+$JWT = new JWT;
 
 $app = new \Slim\App;
 $app = new Slim\App([
@@ -26,10 +29,9 @@ $app = new Slim\App([
 
 $app->post('/createUser', function(Request $request, Response $response)
 {
-    $result = array();
     if(!checkEmptyParameter(array('name','email','password'),$request,$response))
     {
-        $db = new DbOperations();
+        $db = new DbHandler();
 
         $requestParameter = $request->getParsedBody();
         $email = $requestParameter['email'];
@@ -38,18 +40,17 @@ $app->post('/createUser', function(Request $request, Response $response)
         $result = array();
         $result = $db->createUser($name,$email,$password);
 
-        if($result['message'] == USER_CREATION_FAILED)
+        if($result == USER_CREATION_FAILED)
         {
             returnResponse(true,"Failed to create an account",$response);
         }
-        else if($result['message'] == EMAIL_EXIST)
+        else if($result == EMAIL_EXIST)
         {
             returnResponse(true,"Email already registered",$response);
         }
-        else if($result['message'] == USER_CREATED)
+        else if($result == USER_CREATED)
         {
-            $code = $result['code'];
-            $name = $result['name'];
+            $code = $db->getCodeByEmail($email);
             if(prepareVerificationMail($name,$email,$code))
             {
                returnResponse(false,"An Email Verification Link Has Been Sent Your Email Address: ".$email,$response);
@@ -59,11 +60,11 @@ $app->post('/createUser', function(Request $request, Response $response)
                returnResponse(true,"Failed To Send Verification Email",$response);
             }
         }
-        else if($result['message'] == VERIFICATION_EMAIL_SENT_FAILED)
+        else if($result == VERIFICATION_EMAIL_SENT_FAILED)
         {
             returnResponse(true,"Failed To Send Verification Email",$response);
         }
-        else if($result['message'] == EMAIL_NOT_VALID)
+        else if($result == EMAIL_NOT_VALID)
         {
             returnResponse(true,"Enter Valid Email",$response);
         }
@@ -73,41 +74,39 @@ $app->post('/createUser', function(Request $request, Response $response)
 
 $app->post('/login', function(Request $request, Response $response)
 {
-    $result = array();
     if(!checkEmptyParameter(array('email','password'),$request,$response))
     {
-        $db = new DbOperations;
+        $db = new DbHandler;
         $requestParameter = $request->getParsedBody();
         $email = $requestParameter['email'];
         $password = $requestParameter['password'];
         $result = $db->login($email,$password);
 
-        if($result['message'] ==LOGIN_SUCCESSFULL)
+        if($result ==LOGIN_SUCCESSFULL)
         {
             $user = $db->getUserByEmail($email);
+            $user['token'] = getToken($user['id']);
             $errorDetails = array();
             $errorDetails['error'] = false;
             $errorDetails['message'] = "Login Successfull";
             $errorDetails['user'] = $user;
             $response->write(json_encode($errorDetails));
-    
             return $response->withHeader('Content-Type','application/json')
                             ->withStatus(200);
         }
-        
-        else if($result['message'] ==USER_NOT_FOUND)
+        else if($result ==USER_NOT_FOUND)
         {
             returnResponse(true,"Email Is Not Registered",$response);
         }
-        else if($result['message'] ==PASSWORD_WRONG)
+        else if($result ==PASSWORD_WRONG)
         {
             returnResponse(true,"Wrong Password",$response);
         }
-        else if($result['message'] ==UNVERIFIED_EMAIL)
+        else if($result ==UNVERIFIED_EMAIL)
         {
             returnResponse(true,"Email Is Not Verified",$response);
         }
-        else if($result['message'] == EMAIL_NOT_VALID)
+        else if($result == EMAIL_NOT_VALID)
         {
             returnResponse(true,"Enter Valid Email",$response);
         }
@@ -123,42 +122,33 @@ $app->post('/sendEmailVerfication',function(Request $request, Response $response
     $result = array(); 
     if(!checkEmptyParameter(array('email'),$request,$response))
     {
-        $db = new DbOperations();
+        $db = new DbHandler();
         $requestParameter = $request->getParsedBody();
         $email = $requestParameter['email'];
         $result = $db->sendEmailVerificationAgain($email);
-        if($result['message'] == VERIFICATION_EMAIL_SENT)
+        if($result ==SEND_CODE)
         {
-            returnResponse(false,"Email Has Been Sent",$response);
-        }
-        else if($result['message'] ==SEND_CODE)
-        {
-            $name = $result['name'];
-            $email = $result ['email'];
-            $code = $result['code'];
+            $name = $db->getNameByEmail($email);
+            $code = $db->getCodeByEmail($email);
             $process = prepareVerificationMail($name,$email,$code);
             if($process)
             {
-                // $errorDetails = array();
-                // $errorDetails['error'] = false;
-                // $errorDetails['message'] = "An Email Verification Link Has Been Sent Your Email Address: ".$email;
-                // $response->write(json_encode($errorDetails));        
-                // return $response->withHeader('Content-Type','application/json')
-                //                 ->withStatus(200);
-            returnResponse(false,"An Email Verification Link Has Been Sent Your Email Address: ".$email,$response);
-
+                returnResponse(false,"An Email Verification Link Has Been Sent Your Email Address: ".$email,$response);
             }
-            returnResponse(true,"Failed To Sent Verification Email",$response);
+            else
+            {
+                returnResponse(true,"Failed To Sent Verification Email",$response);
+            }
         }
-        else if($result['message'] ==USER_NOT_FOUND)
+        else if($result ==USER_NOT_FOUND)
         {
             returnResponse(true,"No Account Registered With This Email",$response);
         }
-        else if($result['message'] == EMAIL_NOT_VALID)
+        else if($result == EMAIL_NOT_VALID)
         {
             returnResponse(true,"Enter Valid Email",$response);
         }
-        else if($result['message'] ==EMAIL_ALREADY_VERIFIED)
+        else if($result ==EMAIL_ALREADY_VERIFIED)
         {
             returnResponse(true,"Your Email Address Already Verified",$response);
         }
@@ -172,29 +162,29 @@ $app->post('/sendEmailVerfication',function(Request $request, Response $response
 $app->get('/verifyEmail/{email}/{code}',function(Request  $request, Response $response, array $args)
 {
     $email = $args['email']; 
-    $email = decryptEmail($email);
+    $email = decrypt($email);
     $code = $args['code'];
-    $db = new DbOperations();
+    $db = new DbHandler();
     $result = array();
     $result = $db->verfiyEmail($email,$code);
 
-    if($result['message'] == EMAIL_VERIFIED)
+    if($result == EMAIL_VERIFIED)
     {
         returnResponse(false,"Email Has Been Verified",$response);
     }
-    else if($result['message'] ==EMAIL_NOT_VERIFIED)
+    else if($result ==EMAIL_NOT_VERIFIED)
     {
         returnResponse(true,"Failed To Verify Email",$response);
     }
-    else if($result['message'] ==INVAILID_USER)
+    else if($result ==INVAILID_USER)
     {
         returnResponse(true,"INVALID USER",$response);
     }
-    else if($result['message'] ==INVALID_VERFICATION_CODE)
+    else if($result ==INVALID_VERFICATION_CODE)
     {
         returnResponse(true,"INVALID VERIFCATION CODE",$response);
     }
-    else if($result['message'] ==EMAIL_ALREADY_VERIFIED)
+    else if($result ==EMAIL_ALREADY_VERIFIED)
     {
         returnResponse(true,"Your Email Is Already Verified",$response);
     }
@@ -202,42 +192,39 @@ $app->get('/verifyEmail/{email}/{code}',function(Request  $request, Response $re
     {
         returnResponse(true,"Something Went Wrong",$response);
     }
-
 });
 
 $app->post('/forgotPassword', function(Request $request, Response $response)
 {
-    $result = array();
     if(!checkEmptyParameter(array('email'),$request,$response))
     {
-        $db = new DbOperations;
+        $db = new DbHandler;
         $requestParameter = $request->getParsedBody();
         $email= $requestParameter['email'];
         $result = $db->forgotPassword($email);
-        if($result['message'] == CODE_UPDATED)
+        if($result == CODE_UPDATED)
         {
-            $name = $result['name'];
-            $email = $result['email'];
-            $code = $result['code'];
+            $name = $db->getNameByEmail($email);
+            $code = decrypt($db->getCodeByEmail($email));
             if(prepareForgotPasswordMail($name,$email,$code))
             {
                 returnResponse(false,"OTP has been sent to your email address",$response);
             }
             returnResponse(true,"Failed To Send OTP Email",$response);
         }
-        else if($result['message'] == EMAIL_NOT_VALID)
+        else if($result == EMAIL_NOT_VALID)
         {
             returnResponse(true,"Enter Valid Email",$response);
         }       
-        else if($result['message'] ==USER_NOT_FOUND)
+        else if($result ==USER_NOT_FOUND)
         {
             returnResponse(true,"Email Is Not Registered",$response);
         }
-        else if($result['message'] ==EMAIL_NOT_VERIFIED)
+        else if($result ==EMAIL_NOT_VERIFIED)
         {
             returnResponse(true,"Email Is Not Verified",$response);
         }
-        else if($result['message'] ==CODE_UPDATE_FAILED)
+        else if($result ==CODE_UPDATE_FAILED)
         {
             returnResponse(true,"Oops...! Some Error Occurred During Updating Code Into Database",$response);
         }
@@ -253,37 +240,36 @@ $app->post('/resetPassword', function(Request $request, Response $response)
     $result = array();
     if(!checkEmptyParameter(array('email','otp','newPassword'),$request,$response))
     {
-        $db = new DbOperations;
+        $db = new DbHandler;
         $requestParameter = $request->getParsedBody();
         $email = $requestParameter['email'];
         $otp = $requestParameter['otp'];
         $newPassword = $requestParameter['newPassword'];
         $result = $db->resetPassword($email,$otp,$newPassword);
 
-        if($result['message'] == PASSWORD_RESET)
+        if($result == PASSWORD_RESET)
         {
-            $name = $result['name'];
-            $email = $result['email'];
+            $name = $db->getNameByEmail($email);
             preparePasswordChangedMail($name,$email);
             returnResponse(false,"Password Has Been Changed",$response);
         }
-        else if($result['message'] == EMAIL_NOT_VALID)
+        else if($result == EMAIL_NOT_VALID)
         {
             returnResponse(true,"Enter Valid Email",$response);
         }       
-        else if($result['message'] ==USER_NOT_FOUND)
+        else if($result ==USER_NOT_FOUND)
         {
             returnResponse(true,"Email Is Not Registered",$response);
         }
-        else if($result['message'] ==EMAIL_NOT_VERIFIED)
+        else if($result ==EMAIL_NOT_VERIFIED)
         {
             returnResponse(true,"Email Is Not Verified",$response);
         }
-        else if($result['message'] ==PASSWORD_RESET_FAILED)
+        else if($result ==PASSWORD_RESET_FAILED)
         {
             returnResponse(true,"Oops...! Some Error Occurred During Reseting Password",$response);
         }
-        else if($result['message'] ==CODE_WRONG)
+        else if($result ==CODE_WRONG)
         {
             returnResponse(true,"Invalid Otp",$response);
         }
@@ -298,49 +284,38 @@ $app->post('/resetPassword', function(Request $request, Response $response)
 
 $app->post('/updatePassword',function(Request $request, Response $response)
 {
-    $result = array();
-    if(!checkEmptyParameter(array('password','email','newpassword'),$request,$response))
+    $db = new DbHandler;
+    if (validateToken($db,$request,$response)) 
     {
-        $requestParameter = $request->getParsedBody();
-        $email = $requestParameter['email'];
-        $password = $requestParameter['password'];
-        $newPassword = $requestParameter['newpassword'];
-        $db = new DbOperations;
-        $result = array();
-        $result = $db->updatePassword($email,$password,$newPassword);
-
-        if($result['message'] == EMAIL_NOT_VALID)
-        {
-            returnResponse(true,"Enter Valid Email",$response);
-        }        
-        else if($result['message'] ==USER_NOT_FOUND)
-        {
-            returnResponse(true,"Email Is Not Registered",$response);
-        }
-        else if($result['message'] ==EMAIL_NOT_VERIFIED)
-        {
-            returnResponse(true,"Email Is Not Verified",$response);
-        }
-        else if($result['message'] ==PASSWORD_WRONG)
-        {
-            returnResponse(true,"Wrong Password",$response);
-        }
-        else if($result['message']==PASSWORD_CHANGED)
-        {
-            $name = $result['name'];
-            $email = $result['email'];
-            preparePasswordChangedMail($name,$email);
-            returnResponse(false,"Password Has Been Changed",$response);
-        }
-        else if($result['message'] ==PASSWORD_CHANGE_FAILED)
-        {
-            returnResponse(true,"Oops..! Something Went Wrong, Password Not Changed",$response);
-        }
-        else
-        {
-            returnResponse(true,"Oops...! Something Went Wrong.",$response);
-        }
+        if(!checkEmptyParameter(array('password','newpassword'),$request,$response))
+            {
+                $requestParameter = $request->getParsedBody();
+                $password = $requestParameter['password'];
+                $newPassword = $requestParameter['newpassword'];
+                $id = $db->getUserId();
+                $result = $db->updatePassword($id,$password,$newPassword);
+                if($result ==PASSWORD_WRONG)
+                {
+                    returnResponse(true,"Wrong Password",$response);
+                }
+                else if($result==PASSWORD_CHANGED)
+                {
+                    $email = $db->getEmailById($id);
+                    $name = $db->getNameByEmail($email);
+                    preparePasswordChangedMail($name,$email);
+                    returnResponse(false,"Password Has Been Updated",$response);
+                }
+                else if($result ==PASSWORD_CHANGE_FAILED)
+                {
+                    returnResponse(true,"Oops..! Something Went Wrong, Password Not Changed",$response);
+                }
+                else
+                {
+                    returnResponse(true,"Oops...! Something Went Wrong.",$response);
+                }
+            }
     }
+
 });
 
 $app->post('/uploadProfileImage', function(Request $request, Response $response)
@@ -348,25 +323,36 @@ $app->post('/uploadProfileImage', function(Request $request, Response $response)
     $result = array();
     // if(!checkEmptyParameter(array('image','email'),$request,$response))
     // {
-        $db = new DbOperations;
+        $db = new DbHandler;
         $requestParameter = $request->getParsedBody();
         $image = $_FILES['image'];
         $email = $requestParameter['email'];
         $result = $db->uploadProfileImage($email,$image);
 
-        if($result['message'] == IMAGE_UPLOADED)
+        if($result == IMAGE_UPLOADED)
         {
             returnResponse(false,"Image Uploaded",$response);
         }        
-        else if($result['message'] ==IMAGE_UPLOADE_FAILED)
+        else if($result ==IMAGE_UPLOADE_FAILED)
         {
             returnResponse(true,"Failed To Upload The Image",$response);
         }
-        else if($result['message'] ==IMAGE_NOT_SELECTED)
+        else if($result ==IMAGE_NOT_SELECTED)
         {
             returnResponse(true,"Image Not Selected",$response);
         }
     // }
+});
+
+$app->get('/users', function(Request $request, Response $response)
+{
+    $db = new DbHandler;
+    if (validateToken($db,$request,$response)) 
+    {
+            $id = $db->getUserId();
+            $users = $db->getUsers($id);
+            returnResponse(false,$users,$response);
+    }
 });
 
 function checkEmptyParameter($requiredParameter,$request,$response)
@@ -489,7 +475,7 @@ function prepareForgotPasswordMail($name,$email,$code)
 
 function prepareVerificationMail($name,$email,$code)
 {
-    $emailEncrypted = encryptEmail($email);
+    $emailEncrypted = encrypt($email);
     $websiteDomain = WEBSITE_DOMAIN;
     $websiteName = WEBSITE_NAME;
     $websiteEmail = WEBSITE_EMAIL;
@@ -701,7 +687,7 @@ function sendMail($name,$email,$mailSubject,$mailBody)
     return false;
 }
 
-function encryptEmail($data)
+function encrypt($data)
 {
     $email = openssl_encrypt($data,"AES-128-ECB",null);
     $email = str_replace('/','socialcodia',$email);
@@ -709,7 +695,7 @@ function encryptEmail($data)
     return $email; 
 }
 
-function decryptEmail($data)
+function decrypt($data)
 {
     $mufazmi = str_replace('mufazmi','+',$data);
     $email = str_replace('socialcodia','/',$mufazmi);
@@ -726,5 +712,51 @@ function returnResponse($error,$message,$response)
     return $response->withHeader('Content-Type','application/json')
                     ->withStatus(200);
 }
+
+function getToken($userId)
+{
+    $key = JWT_SECRET_KEY;
+    $payload = array(
+        "iss" => "socialcodia.net",
+        "iat" => time(),
+        "user_id" => $userId
+    );
+    $token =JWT::encode($payload,$key);
+    return $token;
+}
+
+function validateToken($db,$request,$response)
+{
+    $error = false;
+    $header =$request->getHeaders();
+    if (!empty($header['HTTP_TOKEN'][0])) 
+    {
+        $token = $header['HTTP_TOKEN'][0];
+        $result = $db->validateToken($token);
+        if (!$result == JWT_TOKEN_FINE) 
+        {
+            $error = true;
+        }
+        else if($result == JWT_TOKEN_ERROR || $result==JWT_USER_NOT_FOUND)
+        {
+            returnResponse(true,"Token Error...! Please Login Again",$response);
+            $error = true;
+        }
+    }
+    else
+    {
+        returnResponse(true,"Invalid Token, Please Login Again",$response);
+        $error = true;
+    }
+    if ($error) 
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
 
 $app->run();

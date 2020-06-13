@@ -1,20 +1,36 @@
 <?php
 
-class DbOperations
+require_once dirname(__FILE__).'/JWT.php';
+    $JWT = new JWT;
+
+
+class DbHandler
 {
     private $con;
+    private $userId;
 
     function __construct()
     {
-		require_once dirname(__FILE__) . '/DbCon.php';
-		$db = new DbCon;
-		$this->con =  $db->Connect();
+        require_once dirname(__FILE__) . '/DbCon.php';
+        $db = new DbCon;
+        $this->con =  $db->Connect();
+    }
+
+    //Getter Setter For User Id Only
+
+    function setUserId($userId)
+    {
+        $this->userId = $userId;
+    }
+
+    function getUserId()
+    {
+        return $this->userId;
     }
 
     function createUser($name,$email,$password)
     {
         $user = array();
-        $result = array();
         if($this->isEmailValid($email))
         {
             if (!$this->isEmailExist($email))
@@ -28,21 +44,18 @@ class DbOperations
                 $stmt->bind_param('sssss',$name,$email,$hashPass,$code,$status);
                 if($stmt->execute())
                 {        
-                    $user['message'] = USER_CREATED;
-                    $user['code'] = $code;
-                    $user['name'] = $name;
-                    return $user;
+                    return USER_CREATED;
                 }
                 else{
-                    $result['message'] = FAILED_TO_CREATE_USER;
-                    return $result;
+                    return FAILED_TO_CREATE_USER;
                 }
             }
-            $result['message'] = EMAIL_EXIST;
-            return $result;
+            else
+            {
+                return EMAIL_EXIST;
+            }
         }
-        $result['message'] = EMAIL_NOT_VALID;
-        return $result;
+        return EMAIL_NOT_VALID;
     }
 
     function login($email,$password)
@@ -56,33 +69,27 @@ class DbOperations
                 {
                     if($this->isEmailVerified($email))
                     {
-                        $result['message'] = LOGIN_SUCCESSFULL;
-                        return $result;
+                        return LOGIN_SUCCESSFULL;
                     }
                     else
                     {
-                        $result['message'] = UNVERIFIED_EMAIL;
-                        return $result;
+                        return UNVERIFIED_EMAIL;
                     }
                 }
                 {
-                    $result['message'] = PASSWORD_WRONG;
-                    return $result;
+                    return PASSWORD_WRONG;
                 }
             }
             else
             {
-                $result['message'] = USER_NOT_FOUND;
-                return $result;
+                return USER_NOT_FOUND;
             }
         }
-        $result['message'] = EMAIL_NOT_VALID;
-        return $result;
+        return EMAIL_NOT_VALID;
     }
 
     function uploadProfileImage($email,$image)
     {
-        $result = array();
         if($image['name']!=null)
         {
             $targetDir = "../uploads/";
@@ -95,58 +102,32 @@ class DbOperations
                 $stmt->bind_param('ss',$targetFile,$email);
                 if($stmt->execute())
                 {
-                    $result['message'] = IMAGE_UPLOADED;
-                    return $result;
+                    return IMAGE_UPLOADED;
                 }
-                $result['message'] = IMAGE_UPLOADE_FAILED;
-                return $result;
+                return IMAGE_UPLOADE_FAILED;
             }
-            $result['message'] = IMAGE_UPLOADE_FAILED;
-            return $result;
+            return IMAGE_UPLOADE_FAILED;
         }
-        $result['message'] = IMAGE_NOT_SELECTED;
-        return $result;
+        return IMAGE_NOT_SELECTED;
     }
 
-    function updatePassword($email,$password, $newPassword)
+    function updatePassword($id,$password, $newPassword)
     {
-        $result = array();
-        if($this->isEmailValid($email))
+
+        $hashPass = $this->getPasswordById($id);
+        if(password_verify($password,$hashPass))
         {
-            if($this->isEmailExist($email))
+            $newHashPassword = password_hash($newPassword,PASSWORD_DEFAULT);
+            $query = "UPDATE users SET password=? WHERE id=?";
+            $stmt = $this->con->prepare($query);
+            $stmt->bind_param('ss',$newHashPassword,$id);
+            if($stmt->execute())
             {
-                if($this->isEmailVerified($email))
-                {
-                    $hashPass = $this->getPasswordByEmail($email);
-                    if(password_verify($password,$hashPass))
-                    {
-                        $newHashPassword = password_hash($newPassword,PASSWORD_DEFAULT);
-                        $query = "UPDATE users SET password=? WHERE email=?";
-                        $stmt = $this->con->prepare($query);
-                        $stmt->bind_param('ss',$newHashPassword,$email);
-                        if($stmt->execute())
-                        {
-                            $name =$this->getPasswordByEmail($email);
-                            $user = array();
-                            $user['message'] = PASSWORD_CHANGED;
-                            $user['email']  = $email;
-                            $user['name'] = $name;
-                            return $user;
-                        }
-                        $result['message'] = PASSWORD_CHANGE_FAILED;
-                        return $result;
-                    }
-                    $result['message'] = PASSWORD_WRONG;
-                    return $result;
-                }
-                $result['message'] = EMAIL_NOT_VERIFIED;
-                return $result;
+                return PASSWORD_CHANGED;
             }
-            $result['message'] = USER_NOT_FOUND;
-            return $result;
+            return PASSWORD_CHANGE_FAILED;
         }
-        $result['message'] = EMAIL_NOT_VALID;
-        return $result;
+        return PASSWORD_WRONG;  
     }
 
     function forgotPassword($email)
@@ -162,36 +143,27 @@ class DbOperations
                     $name = $this->getNameByEmail($email);
                     if($this->updateCode($email,$code))
                     {
-                        $result['message'] = CODE_UPDATED;
-                        $result['code'] = $code;
-                        $result['name'] = $name;
-                        $result['email'] = $email;
-                        return $result;
+                        return CODE_UPDATED;
                     }
-                    $result['message'] = CODE_UPDATE_FAILED;
-                    return $result;
+                    return CODE_UPDATE_FAILED;
                 }
-                $result['message'] = EMAIL_NOT_VERIFIED;
-                return $result;
+                return EMAIL_NOT_VERIFIED;
             }
-            $result['message'] = USER_NOT_FOUND;
-            return $result;
+            return USER_NOT_FOUND;
         }
-        $result['message'] = EMAIL_NOT_VALID;
-        return $result;
+        return EMAIL_NOT_VALID;
     }
 
     function resetPassword($email,$code,$newPassword)
     {
-        $result = array();
         if($this->isEmailValid($email))
         {
             if($this->isEmailExist($email))
             {
                 if($this->isEmailVerified($email))
                 {
-                    $hashCode = $this->getCodeByEmail($email);
-                    if(password_verify($code,$hashCode))
+                    $hashCode = decrypt($this->getCodeByEmail($email));
+                    if($code==$hashCode)
                     {
                         $hashPass = password_hash($newPassword,PASSWORD_DEFAULT);
                         $query = "UPDATE users SET password=? WHERE email=?";
@@ -201,26 +173,17 @@ class DbOperations
                         {
                             $randCode = password_hash(rand(100000,999999),PASSWORD_DEFAULT);
                             $this->updateCode($email,$randCode);
-                            $name = $this->getNameByEmail($email);
-                            $result['message'] = PASSWORD_RESET;
-                            $result['name'] = $name;
-                            $result['email'] = $email;
-                            return $result;
+                            return PASSWORD_RESET;
                         }
-                        $result['message'] = PASSWORD_RESET_FAILED;
-                        return $result;
+                        return PASSWORD_RESET_FAILED;
                     } 
-                    $result['message'] = CODE_WRONG;
-                    return $result;
+                    return CODE_WRONG;
                 }
-                $result['message'] = EMAIL_NOT_VERIFIED;
-                return $result;
+                return EMAIL_NOT_VERIFIED;
             }
-            $result['message'] = USER_NOT_FOUND;
-            return $result;
+            return USER_NOT_FOUND;
         }
-        $result['message'] = EMAIL_NOT_VALID;
-        return $result;
+        return EMAIL_NOT_VALID;
     }
 
     function sendEmailVerificationAgain($email)
@@ -234,25 +197,21 @@ class DbOperations
                 {
                     $code = $this->getCodeByEmail($email);
                     $name = $this->getNameByEmail($email);
-                    $result['message'] = SEND_CODE;
                     $result['code'] = $code;
                     $result['email'] = $email;
                     $result['name'] = $name;
-                    return $result;
+                    return SEND_CODE;
                 }
-                $result['message'] = EMAIL_ALREADY_VERIFIED;
-                return $result;
+                return EMAIL_ALREADY_VERIFIED;
             }
-            $result['message'] = USER_NOT_FOUND ;
-            return $result;
+            return USER_NOT_FOUND;
         }
-        $result['message'] = EMAIL_NOT_VALID;
-        return $result;
+        return EMAIL_NOT_VALID;
     }
 
     function updateCode($email,$code)
     {
-        $hashCode = password_hash($code,PASSWORD_DEFAULT);
+        $hashCode = encrypt($code);
         $query = "UPDATE users SET code=? WHERE email=?";
         $stmt = $this->con->prepare($query);
         $stmt->bind_param('ss',$hashCode,$email);
@@ -276,20 +235,15 @@ class DbOperations
                     $resp = $this->setEmailIsVerfied($email);
                     if($resp)
                     {
-                        $result['message'] = EMAIL_VERIFIED;
-                        return $result;
+                        return EMAIL_VERIFIED;
                     }
-                    $result['message'] = EMAIL_NOT_VERIFIED;
-                    return $result;
+                    return EMAIL_NOT_VERIFIED;
                 }
-                $result['message'] = EMAIL_ALREADY_VERIFIED;
-                return $result;
+                return EMAIL_ALREADY_VERIFIED;
             }
-            $result['message'] = INVALID_VERFICATION_CODE;
-            return $result;
+            return INVALID_VERFICATION_CODE;
         }
-        $result['message'] = INVAILID_USER;
-        return $result;
+        return INVAILID_USER;
     }
 
     function isEmailExist($email)
@@ -300,21 +254,6 @@ class DbOperations
         $stmt->execute();
         $stmt->store_result();
         return $stmt->num_rows>0 ;
-    }
-
-    function deleteAllUser()
-    {
-        $query = "DELETE FROM users";
-        $stmt = $this->con->prepare($query);
-        if($stmt->execute())
-        {
-                $email = "asdf";
-                echo "Database Has Been Cleared";
-        }
-        else
-        {
-            echo "Failed To Clear Database";
-        }
     }
 
     function isEmailVerified($email)
@@ -337,6 +276,60 @@ class DbOperations
         $stmt->bind_result($password);
         $stmt->fetch();
         return $password;
+    }
+
+    function getPasswordById($id)
+    {
+        $query = "SELECT password FROM users WHERE id=?";
+        $stmt = $this->con->prepare($query);
+        $stmt->bind_param('s',$id);
+        $stmt->execute();
+        $stmt->bind_result($password);
+        $stmt->fetch();
+        return $password;
+    }
+
+    function getUsers($id)
+    {
+        $url = "SELECT id,name,email,password FROM users WHERE id !=?";
+        $stmt = $this->con->prepare($url);
+        $stmt->bind_param("s",$id);
+        $stmt->execute();
+        $stmt->bind_result($id,$name,$email,$password);
+        $users = array();
+        while ($stmt->fetch()) {
+            $user = array();
+            $user['id'] = $id;
+            $user['name'] = $name;
+            $user['email'] = $email;
+            array_push($users, $user);
+        }
+        return $users;
+    }
+
+    function getUserById($id)
+    {
+        $query = "SELECT email FROM users WHERE id=?";
+        $stmt = $this->con->prepare($query);
+        $stmt->bind_param('s',$id);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows>0) 
+        {
+            return true;
+        }
+        return false;
+    }
+
+    function getEmailById($id)
+    {
+        $query = "SELECT email FROM users WHERE id=?";
+        $stmt = $this->con->prepare($query);
+        $stmt->bind_param('s',$id);
+        $stmt->execute();
+        $stmt->bind_result($email);
+        $stmt->fetch();
+        return $email;
     }
 
     function getNameByEmail($email)
@@ -397,4 +390,43 @@ class DbOperations
         }
         return false;
     }
+
+    function validateToken($token)
+    {
+        try 
+        {
+            $key = JWT_SECRET_KEY;
+            $payload = JWT::decode($token,$key,['HS256']);
+            $id = $payload->user_id;
+            if ($this->getUserById($id)) 
+            {
+                $this->setUserId($payload->user_id);
+                return JWT_TOKEN_FINE;
+            }
+            return JWT_USER_NOT_FOUND;
+        } 
+        catch (Exception $e) 
+        {
+            return JWT_TOKEN_ERROR;    
+        }
+    }
+
+    function encrypt($data)
+    {
+        $email = openssl_encrypt($data,"AES-128-ECB",null);
+        $email = str_replace('/','socialcodia',$email);
+        $email = str_replace('+','mufazmi',$email);
+        return $email; 
+    }
+
+    function decrypt($data)
+    {
+        $mufazmi = str_replace('mufazmi','+',$data);
+        $email = str_replace('socialcodia','/',$mufazmi);
+        $email = openssl_decrypt($email,"AES-128-ECB",null);
+        return $email; 
+    }
+
+
+    
 }

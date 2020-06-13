@@ -12,6 +12,7 @@ This API is developed using the PHP Slim Framework, In this API you can use thea
 * **Update Password** ( *User can update password, An email will also be send when they succesfully changed their password* )
 * **Forgot Password** ( *User can make a request that they have forgot their password, An OTP will be send to user's email address* )
 * **Reset Password** ( *User can reset password, by using the OTP which they have recieved, An email will also be send when they succesfully changed their password* )
+* **Users List** ( *To view all usesrs information e.g. Name, Email,Id. Need authuntication to view users informations* )
 
 
 ## Feauter Explanation
@@ -30,7 +31,6 @@ define('DB_HOST', 'localhost');     //your database host name
 And you also need to make change in website section of `Constants.php` file.
 
 ```bash
-
 //Website Information
 define('WEBSITE_DOMAIN', 'http://api.socialcodia.ml');               //your domain name
 define('WEBSITE_EMAIL', 'socialcodia@gmail.com');                    //your email address
@@ -38,6 +38,12 @@ define('WEBSITE_EMAIL_PASSWORD', 'password');                        //your emai
 define('WEBSITE_EMAIL_FROM', 'Social Codia');                        // your website name here
 define('WEBSITE_NAME', 'Social Codia');                              //your website name here
 define('WEBSITE_OWNER_NAME', 'Umair Farooqui');                      //your name, we will send this name with email verification mail.
+
+```
+
+```bash
+// JWT ( *JSON Web Token* ) Information
+define('JWT_SECRET_TOKEN','SocialCodia');                              //Use a very dificult secret key here, which no one can guest that,
 
 ```
 
@@ -99,6 +105,23 @@ To Login into Account, Accept only post request with two parameter
 
 The end point of login is `login`
 
+When user provide their username & password credential for login, the request will return their public information with **Token**
+
+The return infomration from the database will be like this.
+
+```bash
+{
+    "error": false,
+    "message": "Login Successfull",
+    "user": {
+        "id": 173,
+        "name": "Social Codia",
+        "email": "socialcodia@gmail.com",
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzb2NpYWxjb2RpYS5uZXQiLCJpYXQiOjE1OTIwNjE5NTcsInVzZXJfaWQiOjE3M30.JPzaIPwxUCISSM-tqfeUysm-kpmG32y6eq_1Cdxhzr4"
+    }
+}
+```
+
 <b>Demo Url</b> 
 * API Url <a href="http://api.socialcodia.ml/login">http://api.socialcodia.ml/login</a>
 * GUI Url <a href="http://restui.socialcodia.ml/login">http://restui.socialcodia.ml/login</a>
@@ -155,10 +178,15 @@ Then they will check the `OTP` is correct or not, if correct then the new passwo
 
 ## Update Account Password
 
-To update or changed the current password, Accept only post request with three parameter
-* Email
+To update or changed the current password, Accept post request with  two parameter with header.
 * Password
 * newPassword
+
+The **Token** must be go in header, The token is mandatory for acception of request.
+* Token
+
+
+> Before returninng any data, This request will verify the current login users information using **Token**, and after that this will fetch the `user id` from the **Token** and update their password into database. An email notification also be sent when they will change their password with **Time**, **Date** and **Ip Address**.
 
 The end point of update password is `updatePassword`
 
@@ -177,6 +205,20 @@ For security reason, The email will be deliver with three parameter **Time** and
 <p align="center">
     <img src="https://i.imgur.com/dwo4Ol8.png" >
 </p>
+
+## View Users List
+To view all users list from database, Authuntication is very compulsry for that, Any authunticated user can view the users public information list, e.g. Id, Name and Email,
+
+To view the users public informations list, Accept only GET request with no parameter,
+* This request will return the only the verified users public information.
+* This request will take an authorization token to validate the user.
+
+The end point of Users List is `users`
+
+<b>Demo Url</b> 
+
+* API Url <a href="http://api.socialcodia.ml/users">http://api.socialcodia.ml/users</a>
+* GUI Url <a href="http://restui.socialcodia.ml/users">http://restui.socialcodia.ml/users</a>
 
 
 ### At the end
